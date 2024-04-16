@@ -1,0 +1,10 @@
+flask
+uwsgi
+requests==2.23.0
+celery
+redis
+gunicorn
+rethinkdb
+PyYaml
+flask-cors
+pyvmomi

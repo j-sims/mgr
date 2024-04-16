@@ -1,0 +1,30 @@
+   {% include "header.html" %}
+   {% include "banner.html" %}
+   <div class="container">
+       <div class="row">
+           <div class="col w-75 p-3">
+               Welcome to the Isilon Logset Mine API.</p>
+               </p>
+               Status Endpoints:
+               <ul>
+                <li><a href="/api/tasks">Running Tasks</a></li>
+                <li><a href="/api/status/index">Index Status</a></li>
+               </ul>
+               </p>
+
+               Data API Endpoints:
+               <ul>
+                <li><a href="/api/clusters">/api/clusters</a>  </li>
+                <li><a href="/api/nodes">/api/nodes</a></li>
+               </p>
+                {%for endpoint in tables%}
+                <li><a href="/api/config/{{endpoint}}">/api/config/{{endpoint}}</a></li>
+                {%endfor%}
+               </ul>
+                
+           </div>
+           
+
+       </div>
+   </div>
+   {% include "footer.html" %}

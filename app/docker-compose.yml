@@ -1,0 +1,29 @@
+version: "3.7"
+
+services:
+  flask:
+    build: ./flask
+    image: ${APP_NAME}/flask
+    restart: always
+    environment:
+      APP_NAME: ${APP_NAME}
+    volumes:
+      - ./flask:/app
+      - ./modules:/app/modules
+    expose:
+      - 8080
+
+  nginx:
+    build: ./nginx
+    image: ${APP_NAME}/nginx
+    restart: always  
+    ports:
+      - 80:80
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./config/nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+
+volumes:
+  redis: {}
+
