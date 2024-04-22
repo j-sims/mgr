@@ -90,8 +90,8 @@ def index():
     for vm in vms:
         if re.search(r"OneFS-", vm.name):
             onefs_vms.append(vm)
-    return render_template("index.html", vms=onefs_vms)
-
+    sorted_versions = sorted(onefs_vms, key=lambda x: tuple(map(int, x.split('-')[1].split('.'))), reverse=True)
+    return render_template("index.html", vms=sorted_versions)
 
 @app.route("/start/<name>")
 def start(name):
