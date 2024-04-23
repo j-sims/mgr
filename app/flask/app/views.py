@@ -23,6 +23,10 @@ def connect_to_host(hostname, username, password, port=443):
     atexit.register(Disconnect, si)
     return si
 
+def disconnect_esx_host(si):
+    if si:
+        Disconnect(si)
+
 
 def start_vm(si, vm_name):
     content = si.RetrieveContent()
@@ -36,10 +40,13 @@ def start_vm(si, vm_name):
     if vm:
         if vm.runtime.powerState != vim.VirtualMachinePowerState.poweredOn:
             task = vm.PowerOnVM_Task()
+            disconnect_esx_host(si)
             return "success"
         else:
+            disconnect_esx_host(si)
             return "failed, already running"
     else:
+        disconnect_esx_host(si)
         return "failed, not found"
 
 
@@ -55,12 +62,15 @@ def pause_vm(si, vm_name):
     if vm:
         if vm.runtime.powerState == vim.VirtualMachinePowerState.poweredOn:
             task = vm.SuspendVM_Task()
+            disconnect_esx_host(si)
             return "success"
         elif vm.runtime.powerState == vim.VirtualMachinePowerState.suspended:
+            disconnect_esx_host(si)
             return "failed, already paused"
         else:
             print(f"VM {vm_name} is not in a state that can be paused.")
     else:
+        disconnect_esx_host(si)
         return "failed, not found"
 
 def get_all_vms(si):
@@ -70,6 +80,7 @@ def get_all_vms(si):
     for vm in container.view:
         vm_list.append(vm)
     container.Destroy()
+    disconnect_esx_host(si)
     return vm_list
 
 def get_onefs_vms(vms):
@@ -116,18 +127,21 @@ def index():
     vms = get_onefs_vms(vms)
     index, vms = get_index(vms)
     simulators = get_simulators()
+    disconnect_esx_host(si)
     return render_template("index.html", vms=vms, index=index, simulators=simulators)
 
 @app.route("/start/<name>")
 def start(name):
     si = connect_to_host(hostname, username, password)
     start_vm(si, name)
+    disconnect_esx_host(si)
     return render_template("start.html", name=name)
 
 @app.route("/stop/<name>")
 def stop(name):
     si = connect_to_host(hostname, username, password)
     pause_vm(si, name)
+    disconnect_esx_host(si)
     return render_template("stop.html", name=name)
 
 @app.route("/status/<name>")
@@ -136,5 +150,7 @@ def status(name):
     vms = get_all_vms(si)
     for vm in vms:
         if vm.name == name: 
+            disconnect_esx_host(si)
             return jsonify({ "state":vm.runtime.powerState})
+    disconnect_esx_host(si)
     return jsonify("error")
