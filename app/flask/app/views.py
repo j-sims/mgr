@@ -127,5 +127,4 @@ def status(name):
     for vm in vms:
         if vm.name == name: 
             return jsonify(vm.runtime.powerState)
-        else:
-            return jsonify("error")
+    return jsonify("error")
