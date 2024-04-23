@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Please Wait</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the name passed from Flask and encode it to handle special characters
+            const name = encodeURIComponent("{{ name | tojson | safe }}");
+
+            function checkServerState() {
+                fetch(`/status/${name}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Checking server state..."); // Log for debugging purposes
+                        if (data.state === "poweredOn") {
+                            console.log("Redirecting as server is powered on.");
+                            window.location.href = "/"; // Redirect when the server state is 'poweredOn'
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            // Set an interval to run the function every 5 seconds
+            setInterval(checkServerState, 5000);
+        });
+    </script>
+</head>
+<body>
+    <p id="countdown">Please wait while we start your virtual machine.</p>
+</body>
+</html>

@@ -112,7 +112,7 @@ def index():
 def start(name):
     si = connect_to_host(hostname, username, password)
     start_vm(si, name)
-    return render_template("wait.html", target="poweredOn")
+    return render_template("start.html", name=name)
 
 @app.route("/stop/<name>")
 def stop(name):
