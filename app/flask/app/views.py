@@ -118,7 +118,7 @@ def start(name):
 def stop(name):
     si = connect_to_host(hostname, username, password)
     pause_vm(si, name)
-    return render_template("wait.html", target="suspended")
+    return render_template("stop.html", name=name)
 
 @app.route("/status/<name>")
 def status(name):

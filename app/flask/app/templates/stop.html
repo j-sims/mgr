@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Please Wait</title>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const name = "{{ name }}"; 
+        function checkServerState() {
+            fetch(`/status/${name}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Checking server state...");
+                    if (data.state === "suspended") {
+                        console.log("Redirecting as server is powered on.");
+                        window.location.href = "/";
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        setInterval(checkServerState, 5000);
+    });
+    </script>
+</head>
+<body>
+    <p id="countdown">Please wait while we start your virtual machine.</p>
+</body>
+</html>
