@@ -8,6 +8,7 @@ from pyVmomi import vim
 import ssl
 import atexit
 import re
+import json
 
 hostname = ''
 username = ''
@@ -87,6 +88,9 @@ def get_index(vms):
     sorted_index = sorted(index, key=lambda x: tuple(map(int, x.split('-')[1].split('.'))), reverse=True)
     return sorted_index, vmdict
 
+def get_simulators():
+    with open('simulators.json') as f:
+        return json.load(f)
 
 ##############################################################################
 # ANCHOR - Static Routes
@@ -105,8 +109,8 @@ def index():
     vms = get_all_vms(si)
     vms = get_onefs_vms(vms)
     index, vms = get_index(vms)
-    print(index, vms)
-    return render_template("index.html", vms=vms, index=index)
+    simulators = get_simulators()
+    return render_template("index.html", vms=vms, index=index, simulators=simulators)
 
 @app.route("/start/<name>")
 def start(name):
