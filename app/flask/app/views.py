@@ -23,6 +23,9 @@ def connect_to_host(hostname, username, password, port=443):
     atexit.register(Disconnect, si)
     return si
 
+def disconnect(si):
+    if si:
+        Disconnect(si)
 
 def start_vm(si, vm_name):
     content = si.RetrieveContent()
@@ -116,18 +119,21 @@ def index():
     vms = get_onefs_vms(vms)
     index, vms = get_index(vms)
     simulators = get_simulators()
+    disconnect(si)
     return render_template("index.html", vms=vms, index=index, simulators=simulators)
 
 @app.route("/start/<name>")
 def start(name):
     si = connect_to_host(hostname, username, password)
     start_vm(si, name)
+    disconnect(si)
     return render_template("start.html", name=name)
 
 @app.route("/stop/<name>")
 def stop(name):
     si = connect_to_host(hostname, username, password)
     pause_vm(si, name)
+    disconnect(si)
     return render_template("stop.html", name=name)
 
 @app.route("/status/<name>")
@@ -136,5 +142,7 @@ def status(name):
     vms = get_all_vms(si)
     for vm in vms:
         if vm.name == name: 
+            disconnect(si)
             return jsonify({ "state":vm.runtime.powerState})
+    disconnect(si)
     return jsonify("error")
