@@ -105,6 +105,7 @@ def index():
     vms = get_all_vms(si)
     vms = get_onefs_vms(vms)
     index, vms = get_index(vms)
+    print(index, vms)
     return render_template("index.html", vms=vms, index=index)
 
 @app.route("/start/<name>")
