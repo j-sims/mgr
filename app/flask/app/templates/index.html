@@ -23,7 +23,7 @@
                                 {% else %}
                                 <a href="/start/{{name}}" class="btn btn-success">Start</a>
                                 {% endif %}
-                                <a href="/someplace" class="btn btn-primary" style="margin-left: 8px;">WebUI</a>
+                                <a href="http://{{simulators[name]['address']}}" class="btn btn-primary" style="margin-left: 8px;">WebUI</a>
                             </td>
                         </tr>
                         {% endfor %}
