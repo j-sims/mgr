@@ -110,7 +110,6 @@ def index():
     vms = get_onefs_vms(vms)
     index, vms = get_index(vms)
     simulators = get_simulators()
-    print(os.getcwd)
     return render_template("index.html", vms=vms, index=index, simulators=simulators)
 
 @app.route("/start/<name>")
