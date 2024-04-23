@@ -9,21 +9,18 @@
             const name = "{{ name }}"; 
         function checkServerState() {
             fetch(`/status/${name}`)
-
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Checking server state..."); // Log for debugging purposes
+                    console.log("Checking server state...");
                     if (data.state === "poweredOn") {
                         console.log("Redirecting as server is powered on.");
-                        window.location.href = "/"; // Redirect when the server state is 'poweredOn'
+                        window.location.href = "/";
                     }
                 })
                 .catch(error => console.error('Error:', error));
         }
-
-        // Set an interval to run the function every 5 seconds
         setInterval(checkServerState, 5000);
-    }
+    });
     </script>
 </head>
 <body>
