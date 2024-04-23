@@ -13,7 +13,7 @@
                 .then(data => {
                     console.log("Checking server state...");
                     if (data.state === "suspended") {
-                        console.log("Redirecting as server is powered on.");
+                        console.log("Redirecting as server is suspended.");
                         window.location.href = "/";
                     }
                 })
