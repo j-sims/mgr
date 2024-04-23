@@ -71,7 +71,7 @@ def get_all_vms(si):
     container.Destroy()
     return vm_list
 
-def get_onefs_vms(vms)
+def get_onefs_vms(vms):
     r = []
     for vm in vms:
         if re.search(r"OneFS-", vm.name):
