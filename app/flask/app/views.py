@@ -71,6 +71,22 @@ def get_all_vms(si):
     container.Destroy()
     return vm_list
 
+def get_onefs_vms(vms)
+    r = []
+    for vm in vms:
+        if re.search(r"OneFS-", vm.name):
+            r.append(vm)
+    return r
+
+def get_index(vms):
+    index = []
+    vmdict = {}
+    for vm in vms:
+        vmdict[vm.name] = { "name": vm.name, "state": vm.runtime.powerState}
+        index.append(vm.name)
+    sorted_index = sorted(index, key=lambda x: tuple(map(int, x.split('-')[1].split('.'))), reverse=True)
+    return sorted_index, vmdict
+
 
 ##############################################################################
 # ANCHOR - Static Routes
@@ -87,12 +103,9 @@ def index():
     onefs_vms = []
     si = connect_to_host(hostname, username, password)
     vms = get_all_vms(si)
-    for vm in vms:
-        if re.search(r"OneFS-", vm.name):
-            onefs_vms.append(vm)
-    print(onefs_vms)
-    sorted_versions = sorted(onefs_vms, key=lambda x: tuple(map(int, x.split('-')[1].split('.'))), reverse=True)
-    return render_template("index.html", vms=sorted_versions)
+    vms = get_onefs_vms(vms)
+    index, vms = get_index(vms)
+    return render_template("index.html", vms=vms, index=index)
 
 @app.route("/start/<name>")
 def start(name):

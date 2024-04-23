@@ -6,8 +6,8 @@
                Welcome to the Virtual OneFS Manager</p>
                </p>
                <table>
-                {% for vm in vms %}
-               <tr><td>{{ vm.name }}</td><td>{%if vm.runtime.powerState == "poweredOn"%} <a href="/stop/{{vm.name}}">Stop</a> {%else%} <a href="/start/{{vm.name}}">Start</a> {%endif%}</td></tr>
+                {% for name in index %}
+               <tr><td>{{ name }}</td><td>{%if vms['name']['state'] == "poweredOn"%} <a href="/stop/{{name}}">Stop</a> {%else%} <a href="/start/{{name}}">Start</a> {%endif%}</td></tr>
                {%endfor%}
                </table>
             
