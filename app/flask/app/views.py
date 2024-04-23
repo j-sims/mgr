@@ -89,7 +89,7 @@ def get_index(vms):
     return sorted_index, vmdict
 
 def get_simulators():
-    with open('simulators.json') as f:
+    with open('app/simulators.json') as f:
         return json.load(f)
 
 ##############################################################################
@@ -110,6 +110,7 @@ def index():
     vms = get_onefs_vms(vms)
     index, vms = get_index(vms)
     simulators = get_simulators()
+    print(os.getcwd)
     return render_template("index.html", vms=vms, index=index, simulators=simulators)
 
 @app.route("/start/<name>")
