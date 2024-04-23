@@ -7,6 +7,9 @@ services:
     restart: always
     environment:
       APP_NAME: ${APP_NAME}
+      VMWARE_HOST: ${VMWARE_HOST}
+      VMWARE_USER: ${VMWARE_USER}
+      VMWARE_PASSWORD: ${VMWARE_PASSWORD}
     volumes:
       - ./flask:/app
       - ./modules:/app/modules
