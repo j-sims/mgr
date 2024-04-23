@@ -5,11 +5,30 @@
            <div class="col w-75 p-3">
                Welcome to the Virtual OneFS Manager</p>
                </p>
-               <table>
-                {% for name in index %}
-               <tr><td>{{ name }}</td><td>{%if vms[name]['state'] == "poweredOn"%} <a href="/stop/{{name}}">Stop</a> {%else%} <a href="/start/{{name}}">Start</a> {%endif%}</td></tr>
-               {%endfor%}
-               </table>
+               <div class="container mt-4">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>VM Name</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for name in index %}
+                        <tr>
+                            <td>{{ name }}</td>
+                            <td>
+                                {% if vms[name]['state'] == "poweredOn" %}
+                                <a href="/stop/{{name}}" class="btn btn-danger">Stop</a>
+                                {% else %}
+                                <a href="/start/{{name}}" class="btn btn-success">Start</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             
             </ul>
            </div>
