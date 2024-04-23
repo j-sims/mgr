@@ -1,67 +1,84 @@
-# ANCHOR - Top
 import os
-from app import app
-from flask import  render_template, send_from_directory, jsonify
-
-from pyVim.connect import SmartConnect, Disconnect
-from pyVmomi import vim
 import ssl
 import atexit
-import re
+import signal
 import json
+import re
+from flask import Flask, render_template, send_from_directory, jsonify
+from pyVim.connect import SmartConnect, Disconnect
+from pyVmomi import vim
+
+app = Flask(__name__)
 
 hostname = os.getenv('VMWARE_HOST')
 username = os.getenv('VMWARE_USER')
 password = os.getenv('VMWARE_PASSWORD')
 
+class TimeoutException(Exception):
+    pass
 
-def connect_to_host(hostname, username, password, port=443):
-    context = None
-    if hasattr(ssl, '_create_unverified_context'):
-        context = ssl._create_unverified_context()
-    si = SmartConnect(host=hostname, user=username, pwd=password, port=port, sslContext=context)
-    atexit.register(Disconnect, si)
-    return si
+def timeout_handler(signum, frame):
+    raise TimeoutException()
 
+def create_ssl_context():
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    context.verify_mode = ssl.CERT_NONE
+    context.check_hostname = False
+    return context
 
-def start_vm(si, vm_name):
-    content = si.RetrieveContent()
-    vm = None
-    container = content.viewManager.CreateContainerView(content.rootFolder, [vim.VirtualMachine], True)
-    for managed_object_ref in container.view:
-        if managed_object_ref.name == vm_name:
-            vm = managed_object_ref
-            break
-    container.Destroy()
-    if vm:
-        if vm.runtime.powerState != vim.VirtualMachinePowerState.poweredOn:
-            task = vm.PowerOnVM_Task()
-            return "success"
-        else:
-            return "failed, already running"
-    else:
-        return "failed, not found"
+def connect_to_host(hostname, username, password, port=443, timeout=10):
+    context = create_ssl_context()
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(timeout)
+    try:
+        si = SmartConnect(host=hostname, user=username, pwd=password, port=port, sslContext=context)
+        atexit.register(Disconnect, si)
+        signal.alarm(0)  # Reset the alarm
+        return si
+    except TimeoutException:
+        print("Connection attempt timed out.")
+        return None
+    except Exception as e:
+        print(f"Failed to connect: {e}")
+        return None
 
+@app.route("/")
+def index():
+    si = connect_to_host(hostname, username, password)
+    if si is None:
+        return "Failed to connect to ESX host", 500
+    vms = get_all_vms(si)
+    vms = get_onefs_vms(vms)
+    index, vms_dict = get_index(vms)
+    simulators = get_simulators()
+    return render_template("index.html", vms=vms_dict, index=index, simulators=simulators)
 
-def pause_vm(si, vm_name):
-    content = si.RetrieveContent()
-    vm = None
-    container = content.viewManager.CreateContainerView(content.rootFolder, [vim.VirtualMachine], True)
-    for managed_object_ref in container.view:
-        if managed_object_ref.name == vm_name:
-            vm = managed_object_ref
-            break
-    container.Destroy()
-    if vm:
-        if vm.runtime.powerState == vim.VirtualMachinePowerState.poweredOn:
-            task = vm.SuspendVM_Task()
-            return "success"
-        elif vm.runtime.powerState == vim.VirtualMachinePowerState.suspended:
-            return "failed, already paused"
-        else:
-            print(f"VM {vm_name} is not in a state that can be paused.")
-    else:
-        return "failed, not found"
+@app.route("/start/<name>")
+def start(name):
+    si = connect_to_host(hostname, username, password)
+    if si is None:
+        return render_template("error.html", error="Failed to connect to ESX host"), 500
+    result = start_vm(si, name)
+    return render_template("start.html", name=name, result=result)
+
+@app.route("/stop/<name>")
+def stop(name):
+    si = connect_to_host(hostname, username, password)
+    if si is None:
+        return render_template("error.html", error="Failed to connect to ESX host"), 500
+    result = pause_vm(si, name)
+    return render_template("stop.html", name=name, result=result)
+
+@app.route("/status/<name>")
+def status(name):
+    si = connect_to_host(hostname, username, password)
+    if si is None:
+        return jsonify("Failed to connect to ESX host"), 500
+    vms = get_all_vms(si)
+    for vm in vms:
+        if vm.name == name:
+            return jsonify({ "state": vm.runtime.powerState})
+    return jsonify("error")
 
 def get_all_vms(si):
     vm_list = []
@@ -73,11 +90,7 @@ def get_all_vms(si):
     return vm_list
 
 def get_onefs_vms(vms):
-    r = []
-    for vm in vms:
-        if re.search(r"OneFS-", vm.name):
-            r.append(vm)
-    return r
+    return [vm for vm in vms if re.search(r"OneFS-", vm.name)]
 
 def get_index(vms):
     index = []
@@ -92,49 +105,13 @@ def get_simulators():
     with open('app/simulators.json') as f:
         return json.load(f)
 
-##############################################################################
-# ANCHOR - Static Routes
-
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
-    
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 @app.route('/startstop.gif')
 def startstopgif():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'start-stop.gif', mimetype='image/gif')
-    
- 
-##############################################################################
-# ANCHOR - UI Routes
-@app.route("/")
-def index():
-    onefs_vms = []
-    si = connect_to_host(hostname, username, password)
-    vms = get_all_vms(si)
-    vms = get_onefs_vms(vms)
-    index, vms = get_index(vms)
-    simulators = get_simulators()
-    return render_template("index.html", vms=vms, index=index, simulators=simulators)
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'start-stop.gif', mimetype='image/gif')
 
-@app.route("/start/<name>")
-def start(name):
-    si = connect_to_host(hostname, username, password)
-    start_vm(si, name)
-    return render_template("start.html", name=name)
-
-@app.route("/stop/<name>")
-def stop(name):
-    si = connect_to_host(hostname, username, password)
-    pause_vm(si, name)
-    return render_template("stop.html", name=name)
-
-@app.route("/status/<name>")
-def status(name):
-    si = connect_to_host(hostname, username, password)
-    vms = get_all_vms(si)
-    for vm in vms:
-        if vm.name == name: 
-            return jsonify({ "state":vm.runtime.powerState})
-    return jsonify("error")
+if __name__ == '__main__':
+    app.run(debug=True)
