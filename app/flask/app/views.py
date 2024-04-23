@@ -101,7 +101,7 @@ def favicon():
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
     
 @app.route('/startstop.gif')
-def favicon():
+def startstopgif():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'start-stop.gif', mimetype='image/gif')
     
