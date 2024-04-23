@@ -7,7 +7,7 @@
                </p>
                <table>
                 {% for name in index %}
-               <tr><td>{{ name }}</td><td>{%if vms['name']['state'] == "poweredOn"%} <a href="/stop/{{name}}">Stop</a> {%else%} <a href="/start/{{name}}">Start</a> {%endif%}</td></tr>
+               <tr><td>{{ name }}</td><td>{%if vms[name]['state'] == "poweredOn"%} <a href="/stop/{{name}}">Stop</a> {%else%} <a href="/start/{{name}}">Start</a> {%endif%}</td></tr>
                {%endfor%}
                </table>
             
