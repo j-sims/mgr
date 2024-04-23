@@ -6,7 +6,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Get the name passed from Flask and encode it to handle special characters
-            const name = encodeURIComponent("{{ name | tojson | safe }}");
+            const name = {{ name }};
 
             function checkServerState() {
                 fetch(`/status/${name}`)
