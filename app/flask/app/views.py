@@ -10,9 +10,9 @@ import atexit
 import re
 import json
 
-hostname = ''
-username = ''
-password = ''
+hostname = os.getenv('VMWARE_HOST')
+username = os.getenv('VMWARE_USER')
+password = os.getenv('VMWARE_PASSWORD')
 
 
 def connect_to_host(hostname, username, password, port=443):
