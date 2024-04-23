@@ -142,7 +142,8 @@ def status(name):
     vms = get_all_vms(si)
     for vm in vms:
         if vm.name == name: 
+            result = jsonify({ "state":vm.runtime.powerState})
             disconnect(si)
-            return jsonify({ "state":vm.runtime.powerState})
+            return result
     disconnect(si)
     return jsonify("error")
