@@ -185,5 +185,9 @@ def add():
     name = request.args.get('name')
     ram = request.args.get('ram')
     address = request.args.get('address')
+    simulators = get_simulators()
+    simulators[name] = {"ram": int(ram), "address": address}  # Add new simulator to the dict
+    with open('/app/app/simulators.json', 'w') as f:  # Write updated dict back to JSON
+        json.dump(simulators, f, indent=4)
     message = f"Added simulator: {name} with RAM: {ram} and Address: {address}."
     return render_template("admin.html", simulators=get_simulators(), message=message)
