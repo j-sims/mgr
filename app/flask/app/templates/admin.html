@@ -8,10 +8,7 @@
 <body>
     <h1>Simulators</h1>
     {% if message %}
-    <div id="message">{{ message }}</div>
-    <script>
-        setTimeout(() => { window.location.href = '/admin'; }, 3000);
-    </script>
+    <div id="message">{{ message }}<hr></div>
     {% endif %}
     <table>
         <tr>
