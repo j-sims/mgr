@@ -93,7 +93,7 @@ def get_index(vms):
     return sorted_index, vmdict
 
 def get_simulators():
-    with open('app/simulators.json') as f:
+    with open('/app/simulators.json') as f:
         return json.load(f)
 
 ##############################################################################
@@ -173,7 +173,7 @@ def delete():
     simulators = get_simulators()
     if simulator_name in simulators:
         del simulators[simulator_name]
-        with open('app/simulators.json', 'w') as f:
+        with open('/app/simulators.json', 'w') as f:
             json.dump(simulators, f)
         message = f"{simulator_name} deleted successfully."
         return render_template("admin.html", simulators=simulators, message=message)
