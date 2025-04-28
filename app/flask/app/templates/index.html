@@ -29,7 +29,11 @@
                             <td>
                                 {% if vms[name]['state'] == "poweredOn" %}
                                 <a href="/stop/{{name}}" class="btn btn-danger">Stop</a>
-                                <a href="https://{{ simulators[name]['address'] }}:8080" target="_blank" class="btn btn-primary" style="margin-left: 8px;">WebUI</a>
+                                {% if name in simulators %}
+                                    <a href="https://{{ simulators[name]['address'] }}:8080" target="_blank" class="btn btn-primary" style="margin-left: 8px;">WebUI</a>
+                                {% else %}
+                                    <span class="text-muted">WebUI not available</span>
+                                {% endif %}
                                 {% else %}
                                 <a href="/start/{{name}}" class="btn btn-success">Start</a>
                                 {% endif %}
