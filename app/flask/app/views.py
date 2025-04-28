@@ -1,7 +1,8 @@
 # ANCHOR - Top
 import os
 from app import app
-from flask import  render_template, send_from_directory, jsonify
+from flask import render_template, send_from_directory, jsonify, request, redirect
+import time  # Import time for sleep functionality
 
 from pyVim.connect import SmartConnect, Disconnect
 from pyVmomi import vim
@@ -147,3 +148,29 @@ def status(name):
             return result
     disconnect(si)
     return jsonify("error")
+
+@app.route("/admin")
+def admin():
+    simulators = get_simulators()
+    return render_template("admin.html", simulators=simulators)
+
+@app.route("/delete")
+def delete():
+    simulator_name = request.args.get('name')
+    simulators = get_simulators()
+    if simulator_name in simulators:
+        del simulators[simulator_name]
+        with open('app/simulators.json', 'w') as f:
+            json.dump(simulators, f)
+        message = f"{simulator_name} deleted successfully."
+        return render_template("admin.html", simulators=simulators, message=message)
+    else:
+        return jsonify({"error": "Simulator not found"}), 404
+
+@app.route("/add")
+def add():
+    name = request.args.get('name')
+    ram = request.args.get('ram')
+    address = request.args.get('address')
+    message = f"Added simulator: {name} with RAM: {ram} and Address: {address}."
+    return render_template("admin.html", simulators=get_simulators(), message=message)

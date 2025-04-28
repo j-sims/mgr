@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Simulators</title>
+</head>
+<body>
+    <h1>Simulators</h1>
+    {% if message %}
+    <div id="message">{{ message }}</div>
+    <script>
+        setTimeout(() => { window.location.href = '/admin'; }, 3000);
+    </script>
+    {% endif %}
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>RAM</th>
+            <th>Address</th>
+            <th>Action</th>
+        </tr>
+        {% for name, details in simulators.items() %}
+        <tr>
+            <td>{{ name }}</td>
+            <td>{{ details.ram }}</td>
+            <td>{{ details.address }}</td>
+            <td><a href="/delete?name={{ name }}">Delete</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Add Simulator</h2>
+    <form action="/add" method="get">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="ram">RAM:</label>
+        <input type="text" id="ram" name="ram" required>
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" required>
+        <button type="submit">Add Simulator</button>
+    </form>
+</body>
+</html>
