@@ -123,6 +123,19 @@ def index():
     disconnect(si)
     return render_template("index.html", vms=vms, index=index, simulators=simulators)
 
+@app.route("/vms")
+def listvms():
+    onefs_vms = []
+    si = connect_to_host(hostname, username, password)
+    vms = get_all_vms(si)
+    vms = get_onefs_vms(vms)
+    return jsonify(vms)
+
+@app.route("/simulators")
+def listsims():
+    simulators = get_simulators()
+    return jsonify(simulators)
+    
 @app.route("/start/<name>")
 def start(name):
     si = connect_to_host(hostname, username, password)
